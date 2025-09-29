@@ -1,0 +1,85 @@
+# 1. Import Libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+pd.set_option('display.max_columns', None)
+
+# 2. Load Data
+train_df = pd.read_csv('train.csv')
+test_df = pd.read_csv('test.csv')
+gender_df = pd.read_csv('gender_submission.csv')
+
+print("Train shape:", train_df.shape)
+print("Test shape:", test_df.shape)
+print("Gender_submission shape:", gender_df.shape)
+
+train_df.head()
+
+# 3. Basic Info & Summary
+train_df.info()
+train_df.describe()
+
+print("Missing values:\n", train_df.isnull().sum())
+print("Survived:\n", train_df['Survived'].value_counts())
+print("Pclass:\n", train_df['Pclass'].value_counts())
+print("Sex:\n", train_df['Sex'].value_counts())
+
+# 4. Univariate Analysis
+train_df.hist(figsize=(12,8), bins=20)
+plt.show()
+
+sns.boxplot(x=train_df['Age'])
+plt.show()
+
+sns.boxplot(x=train_df['Fare'])
+plt.show()
+
+# 5. Bivariate Analysis
+sns.countplot(x='Sex', hue='Survived', data=train_df)
+plt.title("Survival Count by Sex")
+plt.show()
+
+sns.countplot(x='Pclass', hue='Survived', data=train_df)
+plt.title("Survival Count by Pclass")
+plt.show()
+
+sns.countplot(x='Embarked', hue='Survived', data=train_df)
+plt.title("Survival Count by Embarked")
+plt.show()
+
+# 6. Correlation Heatmap (fixed)
+plt.figure(figsize=(8,6))
+numeric_df = train_df.select_dtypes(include=['int64','float64'])  # select only numeric columns
+sns.heatmap(numeric_df.corr(), annot=True, cmap="coolwarm", fmt=".2f")
+plt.title("Correlation Heatmap (Numeric Features Only)")
+plt.show()
+
+# 7. Pairplot
+sns.pairplot(train_df[['Survived', 'Age', 'Fare', 'Pclass']], hue='Survived')
+plt.show()
+
+# 8. Advanced Insights
+plt.figure(figsize=(8,6))
+sns.kdeplot(train_df.loc[train_df['Survived']==1, 'Age'], fill=True, label="Survived")
+sns.kdeplot(train_df.loc[train_df['Survived']==0, 'Age'], fill=True, label="Not Survived")
+plt.title("Age Distribution by Survival")
+plt.legend()
+plt.show()
+
+train_df['FamilySize'] = train_df['SibSp'] + train_df['Parch'] + 1
+sns.countplot(x='FamilySize', hue='Survived', data=train_df)
+plt.title("Survival Count by Family Size")
+plt.show()
+
+ 9. Summary of Findings
+print("""
+1. Majority of passengers did not survive (~62%).
+2. Females had higher survival chances than males.
+3. 1st class passengers had much better survival rates.
+4. Passengers who paid higher fares were more likely to survive.
+5. Many survivors were younger (children).
+6. Larger families had lower survival rates compared to small families.
+7. Missing values found in Age, Cabin, and Embarked columns.
+""")
